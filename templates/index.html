@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uni Finder — Search Universities</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="/">Uni Finder</a>
+    <a class="api-link" href="/docs" target="_blank" rel="noopener">API docs</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 class="brand-hero">Uni Finder</h1>
+      <p class="tagline">Find universities by name or country — and open their websites.</p>
+
+      <form class="search-form" method="get" action="/" role="search">
+        <label class="field">
+          <span>University name</span>
+          <input
+            type="search"
+            name="name"
+            value="{{ name }}"
+            placeholder="e.g. Oxford, MIT, LUMS"
+            autocomplete="off"
+          />
+        </label>
+        <label class="field">
+          <span>Country</span>
+          <input
+            type="search"
+            name="country"
+            value="{{ country }}"
+            placeholder="e.g. Pakistan, United Kingdom"
+            autocomplete="country-name"
+          />
+        </label>
+        <button type="submit" class="cta">Search</button>
+      </form>
+    </section>
+
+    {% if searched %}
+    <section class="results" aria-live="polite">
+      <div class="results-meta">
+        <h2>
+          {% if count %}
+            {{ count }} result{% if count != 1 %}s{% endif %}
+          {% else %}
+            No matches
+          {% endif %}
+        </h2>
+        {% if source == "backup" %}
+          <p class="source-note">Hipolabs was slow — showing official backup list.</p>
+        {% elif source == "primary" %}
+          <p class="source-note">Live from Hipolabs Universities API.</p>
+        {% endif %}
+      </div>
+
+      {% if results %}
+      <ul class="uni-list">
+        {% for uni in results %}
+        <li class="uni-item" style="--i: {{ loop.index0 }}">
+          <div class="uni-text">
+            <h3>{{ uni.name }}</h3>
+            <p class="uni-place">
+              {{ uni.country }}{% if uni.get('state-province') %} · {{ uni['state-province'] }}{% endif %}
+            </p>
+          </div>
+          <div class="uni-links">
+            {% if uni.web_pages %}
+              {% for url in uni.web_pages %}
+              <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>
+              {% endfor %}
+            {% else %}
+              <span class="muted">No website listed</span>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="empty">
+        API ne koi result nahi diya. Jo naam Hipolabs list mein nahi (jaise Usman Institute),
+        woh yahan nahi aayega. Try: <em>Lahore</em>, <em>Karachi</em>, <em>LUMS</em>, ya sirf <em>Pakistan</em>.
+      </p>
+      {% endif %}
+    </section>
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">
+    <p>Data from <a href="https://github.com/Hipo/university-domains-list-api" target="_blank" rel="noopener">Hipolabs Universities</a></p>
+  </footer>
+</body>
+</html>
